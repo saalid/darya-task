@@ -35,7 +35,7 @@ This is a full-stack Laravel 12 application that allows users to submit weather 
 
 ```bash
 git clone https://github.com/saalid/darya-task.git
-cd weather-job-app
+cd darya-task
 ```
 ### 2. Copy Environment File
 
