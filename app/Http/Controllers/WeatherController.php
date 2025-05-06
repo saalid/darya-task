@@ -8,6 +8,10 @@ use App\Jobs\FetchWeatherJob;
 
 class WeatherController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function submitLocation(Request $request)
     {
         $request->validate([
@@ -19,6 +23,10 @@ class WeatherController extends Controller
         return response()->json(['message' => 'Weather job submitted']);
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function getWeather(Request $request)
     {
         return Weather::latest()->first();

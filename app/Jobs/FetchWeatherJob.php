@@ -25,6 +25,11 @@ class FetchWeatherJob implements ShouldQueue
         $this->long = $long;
     }
 
+    /**
+     * @param WeatherApiService $weatherApi
+     * @return void
+     * @throws \Exception
+     */
     public function handle(WeatherApiService $weatherApi): void
     {
         Log::info("FetchWeatherJob started for coordinates: {$this->lat}, {$this->long}");
@@ -45,7 +50,7 @@ class FetchWeatherJob implements ShouldQueue
             Log::info("Weather data saved successfully for: {$this->lat}, {$this->long}");
         } catch (\Exception $e) {
             Log::error("Failed to fetch weather: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            throw $e; // re-throw so Laravel marks the job as failed
+            throw $e;
         }
     }
 }
