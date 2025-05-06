@@ -2,35 +2,35 @@
 
 namespace App\Jobs;
 
+use App\Models\Weather;
+use App\Services\WeatherApiService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Weather;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 
 class FetchWeatherJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $lat;
-    public $long;
+    public float $lat;
+    public float $long;
 
-    public function __construct($lat, $long)
+    public function __construct(float $lat, float $long)
     {
         $this->lat = $lat;
         $this->long = $long;
     }
 
-    public function handle(): void
+    public function handle(WeatherApiService $weatherApi): void
     {
-        $response = Http::withHeaders([
-            'Authorization' => '5678'
-        ])->get("https://api2.com/location/{$this->lat},{$this->long}");
+        Log::info("FetchWeatherJob started for coordinates: {$this->lat}, {$this->long}");
 
-        if ($response->successful()) {
-            $data = $response->json();
+        try {
+            $data = $weatherApi->fetchByCoordinates($this->lat, $this->long);
 
             Weather::create([
                 'latitude' => $this->lat,
@@ -41,6 +41,11 @@ class FetchWeatherJob implements ShouldQueue
                 'sunrise' => $data['sunrise'],
                 'sunset' => $data['sunset'],
             ]);
+
+            Log::info("Weather data saved successfully for: {$this->lat}, {$this->long}");
+        } catch (\Exception $e) {
+            Log::error("Failed to fetch weather: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            throw $e; // re-throw so Laravel marks the job as failed
         }
     }
 }
